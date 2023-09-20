@@ -10,5 +10,4 @@ export_presets.cfg
 .mono/
 data_*/
 *.cfg
-.godot/editor/filesystem_cache8
-.godot/editor/filesystem_cache8
+.godot/
