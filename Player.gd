@@ -45,6 +45,9 @@ func movement_handling():
 			move("down-right")
 		elif Input.is_action_pressed("left"):
 			move("down-left")
+			
+			
+			
 		else:
 			move("down")
 	elif Input.is_action_pressed("left"):
