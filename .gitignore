@@ -22,3 +22,4 @@ mono_crash.*.json
 .DS_Store
 *~
 *.blend1
+.godot/editor/script_editor_cache.cfg
