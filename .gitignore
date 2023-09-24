@@ -1,6 +1,5 @@
 # Godot 4+ specific ignores
-**.godot/*
-.godot/editor/
+.godot/
 
 # Godot-specific ignores
 .import/
@@ -22,4 +21,3 @@ mono_crash.*.json
 .DS_Store
 *~
 *.blend1
-.godot/editor/script_editor_cache.cfg
