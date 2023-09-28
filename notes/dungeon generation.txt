@@ -1,0 +1,100 @@
+https://youtu.be/fudOO713qYo
+maps are 56x32 tiles
+innermost 52x28 is usable (2 tile soft and 2 tile hard borders)
+
+soft border decorative so no floor tiles generate
+hard is a wall you can't destroy
+if they walk past warp away
+
+map generation is inefficient af
+
+dungeon generation algorithm:
+primary rng: linear congruential generator for random number. used for movement, attack ai, generation etc
+called on demand
+
+primary rng seeded by dungeon rng, which steps every time a new floor is entered. used by the primary rng
+called once per floor
+
+rng model is jank, doesn't store seeds in save data so quicksave exploit exists
+during a floor, if you take the same path the same exact events will occur because the primary rng is based on the dungeon rng for that floor
+---
+
+there are 11 distinct algorithms for different scenarios:
+
+generally:
+1. map is cleared and border tiles placed. entire map is walls.
+2. game places down a certain number of rooms (rectangles of floor tiles), with size and layout depending on algorithm. All of them make sure rooms never overlap and sometimes 1x1 rooms are generated for paths.
+3. rooms are connected to their adjacent rooms with corridors. the corridor generation picks two adjacent rooms, picks two random colinear points parallel to the adjacent walls. then draws a line with floor through all the points
+visualize a line parallel to the walls picking a point between the rooms and getting two points on that line
+4. draws X number of dead ends in sequence. the dead end generates by picking a room wall and drawing a point one at a time until it reaches another floor tile (on any of its 8 sides) or the hard border
+5. border is redrawn in-case a dead end removed a bit
+6. place special tile on each room entrance to prevent traps, items etc (happens on 1x1 but doesnt really matter)
+7. special terrain features are added like water tiles
+8. does some clean up steps
+
+0x02:
+single giant floor-wide monster house. used like twice in the game
+0x05:
+two rooms unused and one of them is a monster house
+
+0x01, 0x0B, 0x08 standard generators, same algorithm using different proportions of the entire room:
+1. split available space into M sectors vertically and N horizontally. M and N differ based on specific floor and are partially randomized.
+
+each room has a minimum w/h:5/4 and the maximum is the entire size of the sector. rooms have odd dimensions if possible and ratio of dimensions must be 2:3 or closer to the same to avoid elongated rooms
+
+some are 1x1 dummy rooms determined by a parameter D called "room density". it determines how many "real" rooms spawn and how many dummy 1x1s spawn. negative is exact and positive is some random variance
+D = -2 spawns exactly 2 real rooms, can't be set less than 2.
+D = 2 spawns 2 to 4 rooms randomly
+
+each adjacent pair of rooms has a 5% chance to be merged, generating a new rectangle that perfectly covers both rooms (max(x1,x2), max(y1,y2))
+
+0x0A:
+works like 0x08 except only fills sectors touching the border (large N value probably)
+
+need to guarantee strong connectivity for the floor. original game just tries until it fails 10 times and has a failsafe
+
+0x09:
+generates a large room in the middle and smaller ones on the sides. generates a 3x3 with rooms and merges the 3 in the middle column
+
+0x06:
+generates 5 rooms horizontally
+
+0x07:
+5 rooms in a cross shape
+
+0x04:
+dense room layout where r ooms are only placed near the edges, and they are only connected through corridors in the center (1x1s)
+
+0x03:
+inverse of 0x04, rooms are in the center and theyre only connected through 1x1s around the outside
+
+---
+
+certain floors generate terrain like water or lava with a "terrain density" parameter. Each floor and dungeon has its own setting
+
+this would go in step 7 of general
+
+river generation is first where game creates and erratic path on the map randomly.
+then, the game generates terrain spots at random positions (8x8 areas with 64 randomly placed tiles)
+generates spots equal to the density parameter
+
+---
+
+items, traps and buried items are generated afterwards and they're controled by 3 parameters (only spawned in rooms)
+ground item density: game generates between X-2 and X+2 items on the floor
+tile density: game will generate between X/2 and X special tiles (<= 56) (includes wonder tiles and traps)
+buried item density: same as ground item inside walls
+
+item data is stored separately from tile data as structures on the heap, but the heap is limited so we can hit an upper limit on the gameboy
+
+dungeon can be set to have traps or not
+---
+
+monster houses
+parameter for floor indicating percent change. there can only be one per floor
+
+for monster houses the game runs another ground item and tile generation round to make them full of stuff
+
+kecleon shops too have a percent and one per floor
+
+generated with shop taking up the entire room and cut down by a random number of tiles >= 3x3
