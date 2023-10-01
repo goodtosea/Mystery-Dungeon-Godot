@@ -27,7 +27,6 @@ func _physics_process(delta):
 	movement_handling()
 	
 
-
 func movement_handling():
 	if moving:
 		return
