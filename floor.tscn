@@ -494,6 +494,9 @@ sources/0 = SubResource("TileSetAtlasSource_tgy73")
 
 [node name="Floor" type="Area2D"]
 script = ExtResource("1_8tqit")
+width = null
+height = null
+seed = null
 
 [node name="Layout" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_q0vu7")

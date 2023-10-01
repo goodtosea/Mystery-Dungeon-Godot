@@ -15,7 +15,7 @@ func _ready(seed: int = 1) -> void:
 
 func setup_layout() -> void:
 	fill_with_walls()
-#	place_rooms()
+	place_rooms()
 #	place_corridors()
 #	place_deadends()
 #	draw_border()
@@ -28,6 +28,11 @@ func fill_with_walls() -> void:
 		for y in height:
 			$Layout.set_cell(0, Vector2i(x, y), 0, Vector2i(1, 1), 0)
 			
+
+
+func place_rooms() -> void:
+	
+
 
 # Debug for floor generation
 func _input(event: InputEvent) -> void:
