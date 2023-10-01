@@ -7,3 +7,6 @@
 [node name="Dungeon" type="Node" parent="."]
 
 [node name="Floor" parent="Dungeon" instance=ExtResource("1_0alpk")]
+width = 56
+height = 32
+seed = 1
