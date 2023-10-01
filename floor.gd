@@ -13,8 +13,14 @@ func _ready(seed: int = 1):
 
 
 func setup_layout():
-	$Layout.
+	$Layout.position = Vector2(0, 0)
+	$Layout.clear()
+	$Layout.resize(width, height)
+	$Layout.seed = seed
+	
+	
 		
 		
 		
 	
+
