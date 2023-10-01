@@ -16,7 +16,9 @@ func _ready(seed: int = 1) -> void:
 
 func setup_layout() -> void:
 	fill_with_walls()
-	place_rooms()
+
+	for i in 50:
+		place_rooms()
 #	place_corridors()
 #	place_deadends()
 #	draw_border()
