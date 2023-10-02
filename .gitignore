@@ -23,3 +23,5 @@ mono_crash.*.json
 *.blend1
 *.tmp
 *.json
+Mystery Dungeon.csproj
+Mystery Dungeon.sln
