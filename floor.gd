@@ -35,11 +35,14 @@ func fill_with_walls() -> void:
 
 func place_rooms() -> void:
 	
-	var offset_x := randi_range(hard_border_width, width - hard_border_width)
-	var offset_y := randi_range(hard_border_width, height - hard_border_width)
-	
 	var room_size_x := randi_range(5, 10) # replace 10 with size of sector later
 	var room_size_y := randi_range(4, 10)
+
+	var offset_x := randi_range(hard_border_width, width - hard_border_width - room_size_x)
+	var offset_y := randi_range(hard_border_width, height - hard_border_width - room_size_y)
+
+	# offset picks a point within the playing space accounting for the border
+	
 	for x in room_size_x:
 		for y in room_size_y:
 			$Layout.set_cell(0, Vector2i(x + offset_x, y + offset_y), 0, Vector2i(13, 1), 0)
