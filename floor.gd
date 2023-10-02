@@ -60,8 +60,12 @@ func create_sectors_and_rooms():
 	place_room(Vector2i(hard_border_width, width - hard_border_width), 
 		Vector2i(hard_border_width, height - hard_border_width)) # generates one large room
 
-	# get sector bounds
-
+	# get sector bounds (goes 0 to N - 1 supposedly)
+	for i in N:
+		for j in M:
+			place_room(Vector2i(i * (width / N), (i + 1) * (width / N)), 
+				Vector2i(j * (height / M), (j + 1) * (height / M)))
+		
 	# for each sector, run place_room(x, y)
 
 
