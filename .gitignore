@@ -25,3 +25,4 @@ mono_crash.*.json
 *.json
 Mystery Dungeon.csproj
 Mystery Dungeon.sln
+project.godot
