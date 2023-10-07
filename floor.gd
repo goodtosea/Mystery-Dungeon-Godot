@@ -7,7 +7,7 @@ extends Area2D
 @export var hard_border_width := 2
 
 @export var M := 2
-@export var N := 2
+@export var N := 3
 
 
 @export var seed := 1
@@ -39,8 +39,11 @@ func fill_with_walls() -> void:
 
 func place_room(range_x: Vector2i, range_y: Vector2i) -> void:
 
-	var room_size_x := randi_range(5, range_x.y) # replace 10 with size of sector later
-	var room_size_y := randi_range(4, range_y.y)
+	var sector_size_x = range_x.y - range_x.x
+	var sector_size_y = range_y.y - range_y.x
+	
+	var room_size_x := randi_range(5, sector_size_x) # replace 10 with size of sector later
+	var room_size_y := randi_range(4, sector_size_y)
 
 	# var offset_x := randi_range(hard_border_width, width - hard_border_width - room_size_x)
 	# var offset_y := randi_range(hard_border_width, height - hard_border_width - room_size_y)
@@ -57,8 +60,8 @@ func place_room(range_x: Vector2i, range_y: Vector2i) -> void:
 
 func create_sectors_and_rooms():
 
-	place_room(Vector2i(hard_border_width, width - hard_border_width), 
-		Vector2i(hard_border_width, height - hard_border_width)) # generates one large room
+#	place_room(Vector2i(hard_border_width, width - hard_border_width), 
+#		Vector2i(hard_border_width, height - hard_border_width)) # generates one large room
 
 	# get sector bounds (goes 0 to N - 1 supposedly)
 	for i in N:
