@@ -1,6 +1,8 @@
 extends Area2D
 
-# class_name floor;
+class_name Floor;
+
+var room_list := Array()
 
 @export var width := 56
 @export var height := 32
@@ -21,7 +23,7 @@ func _ready(seed: int = 1) -> void:
 func setup_layout() -> void:
 	fill_with_walls()
 
-	create_sectors_and_rooms()
+	create_rooms()
 
 #	place_corridors()
 #	place_deadends()
@@ -37,7 +39,7 @@ func fill_with_walls() -> void:
 			
 
 
-func place_room(range_x: Vector2i, range_y: Vector2i) -> void:
+func draw_room(range_x: Vector2i, range_y: Vector2i) -> void:
 
 	var sector_size_x = range_x.y - range_x.x
 	var sector_size_y = range_y.y - range_y.x
@@ -53,12 +55,13 @@ func place_room(range_x: Vector2i, range_y: Vector2i) -> void:
 
 	# offset picks a point within the playing space accounting for the border
 	
+	
 	for x in room_size_x:
 		for y in room_size_y:
 			$Layout.set_cell(0, Vector2i(x + offset_x, y + offset_y), 0, Vector2i(13, 1), 0)
 
 
-func create_sectors_and_rooms():
+func create_rooms():
 
 #	place_room(Vector2i(hard_border_width, width - hard_border_width), 
 #		Vector2i(hard_border_width, height - hard_border_width)) # generates one large room
@@ -66,7 +69,7 @@ func create_sectors_and_rooms():
 	# get sector bounds (goes 0 to N - 1 supposedly)
 	for i in N:
 		for j in M:
-			place_room(Vector2i(i * (width / N), (i + 1) * (width / N)), 
+			Room.new(Vector2i(i * (width / N), (i + 1) * (width / N)), 
 				Vector2i(j * (height / M), (j + 1) * (height / M)))
 		
 	# for each sector, run place_room(x, y)

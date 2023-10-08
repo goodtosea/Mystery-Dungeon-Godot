@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://drs41dhd3pe4r"]
+[gd_scene load_steps=7 format=3 uid="uid://drs41dhd3pe4r"]
 
 [ext_resource type="Script" path="res://floor.gd" id="1_8tqit"]
 [ext_resource type="PackedScene" uid="uid://chi3k2km5nioi" path="res://player.tscn" id="1_xlw2d"]
 [ext_resource type="Texture2D" uid="uid://cr02rk6g5rkng" path="res://beach_cave.png" id="2_0ideb"]
+[ext_resource type="Script" path="res://room.gd" id="4_l884i"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tgy73"]
 texture = ExtResource("2_0ideb")
@@ -502,3 +503,6 @@ layer_0/tile_data = PackedInt32Array(196607, 327680, 2, 131070, 327680, 2, 65534
 
 [node name="Player" parent="." instance=ExtResource("1_xlw2d")]
 position = Vector2(638, 362)
+
+[node name="Room" type="Area2D" parent="."]
+script = ExtResource("4_l884i")
