@@ -63,11 +63,10 @@ func create_rooms() -> void:
 			
 			# TODO: There's probably a better way to do this with signals
 			
-#			var current_room = room.instantiate()
-#			current_room.init(Vector2i(offset_x, offset_x + room_size_x), Vector2i(offset_y, offset_y + room_size_y))
-#			room_list.append(current_room)
-#			add_child(current_room)
-#			current_room.draw_collider()
+			var current_room = room.instantiate()
+			current_room.initialize_variables(Vector2i(offset_x, offset_x + room_size_x), Vector2i(offset_y, offset_y + room_size_y))
+			room_list.append(current_room)
+			add_child(current_room)
 			
 		
 	# for each room, run place_room(x, y)
@@ -107,3 +106,10 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("reload debug"):
 		get_tree().reload_current_scene()
 
+
+static func own(node, new_owner):
+	if not node == new_owner and (not node.owner or node.filename):
+		node.owner = new_owner
+	if node.get_child_count():
+		for kid in node.get_children():
+			own(kid, new_owner)
