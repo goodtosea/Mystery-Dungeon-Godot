@@ -3,6 +3,7 @@ extends Area2D
 class_name Floor;
 
 var room_list := Array()
+var room = preload("res://room.tscn")
 
 @export var width := 56
 @export var height := 32
@@ -25,18 +26,54 @@ func setup_layout() -> void:
 
 	create_rooms()
 
-#	place_corridors()
+	place_corridors()
 #	place_deadends()
 #	draw_border()
 #	place_exception_tiles()
 #	place_terrain_features()
-	
-	
+
+
 func fill_with_walls() -> void:
 	for x in width:
 		for y in height:
 			$Layout.set_cell(0, Vector2i(x, y), 0, Vector2i(1, 1), 0)
+	
+
+
+func create_rooms() -> void:
+
+#	place_room(Vector2i(hard_border_width, width - hard_border_width), 
+#		Vector2i(hard_border_width, height - hard_border_width)) # generates one large room
+
+	# get room bounds (goes 0 to N - 1 supposedly)
+	for i in N:
+		for j in M:
+			# Sector logic
+			var range_x := Vector2i(i * (width / N), (i + 1) * (width / N)) 
+			var range_y := Vector2i(j * (height / M), (j + 1) * (height / M))
 			
+			var sector_size_x = range_x.y - range_x.x
+			var sector_size_y = range_y.y - range_y.x
+	
+			var room_size_x := randi_range(5, sector_size_x)
+			var room_size_y := randi_range(4, sector_size_y)
+
+			var offset_x := randi_range(range_x.x, range_x.y - room_size_x)
+			var offset_y := randi_range(range_y.x, range_y.y - room_size_y)
+			
+			# TODO: There's probably a better way to do this with signals
+			
+#			var current_room = room.instantiate()
+#			current_room.init(Vector2i(offset_x, offset_x + room_size_x), Vector2i(offset_y, offset_y + room_size_y))
+#			room_list.append(current_room)
+#			add_child(current_room)
+#			current_room.draw_collider()
+			
+		
+	# for each room, run place_room(x, y)
+	for room in room_list:
+		draw_room(room)
+	
 
 
 func draw_room(room: Room) -> void:
@@ -58,38 +95,11 @@ func draw_room(room: Room) -> void:
 
 	# offset picks a point within the playing space accounting for the border
 	
+
+
+func place_corridors() -> void:
+	pass
 	
-#	for x in room_size_x:
-#		for y in room_size_y:
-#			$Layout.set_cell(0, Vector2i(x + offset_x, y + offset_y), 0, Vector2i(13, 1), 0)
-
-
-func create_rooms():
-
-#	place_room(Vector2i(hard_border_width, width - hard_border_width), 
-#		Vector2i(hard_border_width, height - hard_border_width)) # generates one large room
-
-	# get room bounds (goes 0 to N - 1 supposedly)
-	for i in N:
-		for j in M:
-			# Sector logic
-			var range_x := Vector2i(i * (width / N), (i + 1) * (width / N)) 
-			var range_y := Vector2i(j * (height / M), (j + 1) * (height / M))
-			
-			var sector_size_x = range_x.y - range_x.x
-			var sector_size_y = range_y.y - range_y.x
-	
-			var room_size_x := randi_range(5, sector_size_x)
-			var room_size_y := randi_range(4, sector_size_y)
-
-			var offset_x := randi_range(range_x.x, range_x.y - room_size_x)
-			var offset_y := randi_range(range_y.x, range_y.y - room_size_y)
-			
-			room_list.append(Room.new(Vector2i(offset_x, offset_x + room_size_x), Vector2i(offset_y, offset_y + room_size_y)))
-		
-	# for each room, run place_room(x, y)
-	for room in room_list:
-		draw_room(room)
 
 
 # Debug for floor generation

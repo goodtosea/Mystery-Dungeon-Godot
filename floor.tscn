@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://drs41dhd3pe4r"]
 
-[ext_resource type="Script" path="res://floor.gd" id="1_8tqit"]
+[ext_resource type="Script" path="res://Floor.gd" id="1_60bmm"]
 [ext_resource type="PackedScene" uid="uid://chi3k2km5nioi" path="res://player.tscn" id="1_xlw2d"]
 [ext_resource type="Texture2D" uid="uid://cr02rk6g5rkng" path="res://beach_cave.png" id="2_0ideb"]
 
@@ -493,7 +493,7 @@ physics_layer_0/collision_layer = 1
 sources/0 = SubResource("TileSetAtlasSource_tgy73")
 
 [node name="Floor" type="Area2D"]
-script = ExtResource("1_8tqit")
+script = ExtResource("1_60bmm")
 
 [node name="Layout" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_q0vu7")
@@ -502,5 +502,3 @@ layer_0/tile_data = PackedInt32Array(196607, 327680, 2, 131070, 327680, 2, 65534
 
 [node name="Player" parent="." instance=ExtResource("1_xlw2d")]
 position = Vector2(638, 362)
-
-[node name="Room" type="Area2D" parent="."]
