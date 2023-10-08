@@ -39,26 +39,29 @@ func fill_with_walls() -> void:
 			
 
 
-func draw_room(range_x: Vector2i, range_y: Vector2i) -> void:
-
-	var sector_size_x = range_x.y - range_x.x
-	var sector_size_y = range_y.y - range_y.x
-	
-	var room_size_x := randi_range(5, sector_size_x) # replace 10 with size of sector later
-	var room_size_y := randi_range(4, sector_size_y)
-
-	# var offset_x := randi_range(hard_border_width, width - hard_border_width - room_size_x)
-	# var offset_y := randi_range(hard_border_width, height - hard_border_width - room_size_y)
-
-	var offset_x := randi_range(range_x.x, range_x.y - room_size_x)
-	var offset_y := randi_range(range_y.x, range_y.y - room_size_y)
+func draw_room(room: Room) -> void:
+	for x in room.range_x:
+		for y in room.range_y:
+			$Layout.set_cell(0, Vector2i(x, y), 0, Vector2i(13, 1), 0)
+		
+#	var sector_size_x = range_x.y - range_x.x
+#	var sector_size_y = range_y.y - range_y.x
+#
+#	var room_size_x := randi_range(5, sector_size_x) # replace 10 with size of sector later
+#	var room_size_y := randi_range(4, sector_size_y)
+#
+#	# var offset_x := randi_range(hard_border_width, width - hard_border_width - room_size_x)
+#	# var offset_y := randi_range(hard_border_width, height - hard_border_width - room_size_y)
+#
+#	var offset_x := randi_range(range_x.x, range_x.y - room_size_x)
+#	var offset_y := randi_range(range_y.x, range_y.y - room_size_y)
 
 	# offset picks a point within the playing space accounting for the border
 	
 	
-	for x in room_size_x:
-		for y in room_size_y:
-			$Layout.set_cell(0, Vector2i(x + offset_x, y + offset_y), 0, Vector2i(13, 1), 0)
+#	for x in room_size_x:
+#		for y in room_size_y:
+#			$Layout.set_cell(0, Vector2i(x + offset_x, y + offset_y), 0, Vector2i(13, 1), 0)
 
 
 func create_rooms():
@@ -66,13 +69,27 @@ func create_rooms():
 #	place_room(Vector2i(hard_border_width, width - hard_border_width), 
 #		Vector2i(hard_border_width, height - hard_border_width)) # generates one large room
 
-	# get sector bounds (goes 0 to N - 1 supposedly)
+	# get room bounds (goes 0 to N - 1 supposedly)
 	for i in N:
 		for j in M:
-			Room.new(Vector2i(i * (width / N), (i + 1) * (width / N)), 
-				Vector2i(j * (height / M), (j + 1) * (height / M)))
+			# Sector logic
+			var range_x := Vector2i(i * (width / N), (i + 1) * (width / N)) 
+			var range_y := Vector2i(j * (height / M), (j + 1) * (height / M))
+			
+			var sector_size_x = range_x.y - range_x.x
+			var sector_size_y = range_y.y - range_y.x
+	
+			var room_size_x := randi_range(5, sector_size_x)
+			var room_size_y := randi_range(4, sector_size_y)
+
+			var offset_x := randi_range(range_x.x, range_x.y - room_size_x)
+			var offset_y := randi_range(range_y.x, range_y.y - room_size_y)
+			
+			room_list.append(Room.new(Vector2i(offset_x, offset_x + room_size_x), Vector2i(offset_y, offset_y + room_size_y)))
 		
-	# for each sector, run place_room(x, y)
+	# for each room, run place_room(x, y)
+	for room in room_list:
+		draw_room(room)
 
 
 # Debug for floor generation
