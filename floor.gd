@@ -10,8 +10,8 @@ var room = preload("res://room.tscn")
 @export var height := 32
 @export var hard_border_width := 2
 
-@export var M := 4
-@export var N := 5
+@export var M := 2
+@export var N := 3
 
 
 @export var seed := 1
@@ -43,9 +43,7 @@ func setup_layout() -> void:
 
 
 func fill_with_walls() -> void:
-	for x in width:
-		for y in height:
-			$Layout.set_cell(0, Vector2i(x, y), 0, Vector2i(1, 1), 0)
+	draw_area(Vector2i(0, width), Vector2i(0, height), 0, 0, Vector2i(1, 1), 0)
 	
 
 
@@ -107,19 +105,41 @@ func draw_room(room: Room) -> void:
 
 
 func place_corridors() -> void:
-	pass
+	for i in N:
+		for j in M:
+			var current_room = room_list[i][j]
+			var room_to_connect_to
+			
+			#above
+			if (j - 1) > -1:
+				room_to_connect_to = room_list[i][j - 1]
+				
+				var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y)
+				var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y)
+				var corridor_connection_y = randi_range(current_room.range_y.x, room_to_connect_to.range_y.y)
+				
+				draw_area(Vector2i(current_room_x, current_room_x + 1), Vector2i(corridor_connection_y, current_room.range_y.x), 0, 0, Vector2i(13, 1), 0) # current room to the midpoint
+				draw_area(Vector2i(room_to_connect_to_x, room_to_connect_to_x + 1), Vector2i(room_to_connect_to_x, corridor_connection_y), 0, 0, Vector2i(13, 1), 0) # room to connect to to the midpoint
+				draw_area(Vector2i(current_room_x, room_to_connect_to_x), Vector2i(corridor_connection_y, corridor_connection_y + 1), 0, 0, Vector2i(13, 1), 0) # connect the two
+				
+				
+			#below
+			if (j + 1) < M:
+				room_to_connect_to = room_list[i][j + 1]
+			#left
+			if (i - 1) > -1:
+				room_to_connect_to = room_list[i - 1][j]
+			#right
+			if (i + 1) < N:
+				room_to_connect_to = room_list[i + 1][j]
 	
 
+func draw_area(range_x: Vector2i, range_y: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
+	for x in range(range_x.x, range_x.y):
+		for y in range(range_y.x, range_y.y):
+			$Layout.set_cell(layer, Vector2i(x, y), source_id, atlas_coords, alternative_tile)
 
 # Debug for floor generation
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("reload debug"):
 		get_tree().reload_current_scene()
-
-
-static func own(node, new_owner):
-	if not node == new_owner and (not node.owner or node.filename):
-		node.owner = new_owner
-	if node.get_child_count():
-		for kid in node.get_children():
-			own(kid, new_owner)
