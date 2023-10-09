@@ -114,13 +114,13 @@ func place_corridors() -> void:
 			if (j - 1) > -1:
 				room_to_connect_to = room_list[i][j - 1]
 				
-				var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y)
-				var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y)
-				var corridor_connection_y = randi_range(current_room.range_y.x, room_to_connect_to.range_y.y)
+				var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1)
+				var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y - 1)
+				var corridor_connection_y = randi_range(min(current_room.range_y.x, room_to_connect_to.range_y.y) + 1, max(current_room.range_y.x, room_to_connect_to.range_y.y) - 1)
 				
-				draw_area(Vector2i(current_room_x, current_room_x + 1), Vector2i(corridor_connection_y, current_room.range_y.x), 0, 0, Vector2i(13, 1), 0) # current room to the midpoint
-				draw_area(Vector2i(room_to_connect_to_x, room_to_connect_to_x + 1), Vector2i(room_to_connect_to_x, corridor_connection_y), 0, 0, Vector2i(13, 1), 0) # room to connect to to the midpoint
-				draw_area(Vector2i(current_room_x, room_to_connect_to_x), Vector2i(corridor_connection_y, corridor_connection_y + 1), 0, 0, Vector2i(13, 1), 0) # connect the two
+				draw_area(Vector2i(current_room_x, current_room_x + 1), Vector2i(min(corridor_connection_y, current_room.range_y.x), max(corridor_connection_y, current_room.range_y.x)), 0, 0, Vector2i(13, 1), 0) # current room to the midpoint
+				draw_area(Vector2i(room_to_connect_to_x, room_to_connect_to_x + 1), Vector2i(min(room_to_connect_to.range_y.y, corridor_connection_y), max(room_to_connect_to.range_y.y, corridor_connection_y)), 0, 0, Vector2i(13, 1), 0) # room to connect to to the midpoint
+				draw_area(Vector2i(min(current_room_x, room_to_connect_to_x), max(current_room_x, room_to_connect_to_x) + 1), Vector2i(corridor_connection_y, corridor_connection_y + 1), 0, 0, Vector2i(13, 1), 0) # connect the two
 				
 				
 			#below
