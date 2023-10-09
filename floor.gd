@@ -2,21 +2,30 @@ extends Area2D
 
 class_name Floor;
 
-var room_list := Array()
+var room_list := []
+
 var room = preload("res://room.tscn")
 
 @export var width := 56
 @export var height := 32
 @export var hard_border_width := 2
 
-@export var M := 2
-@export var N := 3
+@export var M := 4
+@export var N := 5
 
 
 @export var seed := 1
 
+func initalize_room_list():
+	for i in N:
+		room_list.append([])
+		for j in M:
+			room_list[i].append(0)
+
+
 # Called when the node enters the scene tree for the first time.
 func _ready(seed: int = 1) -> void:
+	initalize_room_list()
 	setup_layout()
 
 
@@ -65,13 +74,14 @@ func create_rooms() -> void:
 			
 			var current_room = room.instantiate()
 			current_room.initialize_variables(Vector2i(offset_x, offset_x + room_size_x), Vector2i(offset_y, offset_y + room_size_y))
-			room_list.append(current_room)
+			room_list[i][j] = current_room
 			add_child(current_room)
 			
 		
 	# for each room, run place_room(x, y)
-	for room in room_list:
-		draw_room(room)
+	for column in room_list:
+		for room in column:
+			draw_room(room)
 	
 
 

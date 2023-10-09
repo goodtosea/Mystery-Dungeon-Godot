@@ -14,5 +14,6 @@ script = ExtResource("1_2l18j")
 shape = SubResource("RectangleShape2D_myvvl")
 
 [node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(1, 0)
 scale = Vector2(0.6, 0.6)
 texture = ExtResource("2_32vme")
