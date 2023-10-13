@@ -13,15 +13,12 @@ var room = preload("res://room.tscn")
 @export var M := 2
 @export var N := 3
 
-
-@export var seed := 1
-
 func initalize_room_list():
 	for i in N:
 		room_list.append([])
 		for j in M:
 			room_list[i].append(0)
-			
+
 
 func flattened_room_list():
 	var flattened_list = Array()
@@ -33,11 +30,9 @@ func flattened_room_list():
 	return flattened_list
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready(seed: int = 1) -> void:
+func _ready() -> void:
 	initalize_room_list()
 	setup_layout()
-
 
 
 func setup_layout() -> void:
@@ -54,7 +49,6 @@ func setup_layout() -> void:
 
 func fill_with_walls() -> void:
 	draw_area(Vector2i(0, width), Vector2i(0, height), 0, 0, Vector2i(1, 1), 0)
-	
 
 
 func create_rooms() -> void:
@@ -90,7 +84,6 @@ func create_rooms() -> void:
 	for column in room_list:
 		for room in column:
 			draw_room(room)
-	
 
 
 func draw_room(room: Room) -> void:
@@ -111,7 +104,6 @@ func draw_room(room: Room) -> void:
 #	var offset_y := randi_range(range_y.x, range_y.y - room_size_y)
 
 	# offset picks a point within the playing space accounting for the border
-	
 
 
 func place_corridors() -> void:
@@ -122,6 +114,7 @@ func place_corridors() -> void:
 	unvisited.erase(current)
 	visited.append(current)
 	
+	# Creates what is basically a connected undirected map
 	while not unvisited.is_empty():
 		var neighbors = get_neighbors(current)
 		var neighbor
@@ -134,6 +127,41 @@ func place_corridors() -> void:
 			visited.append(neighbor)
 		current = neighbor
 	
+	# ===
+	
+	if N < 2 or M < 2:
+		return
+	
+	var corner_rooms = 4 # can have up to 2 corridors
+	var edge_rooms = 2 * (N - 2) + 2 * (M - 2) # can have up to 3 corridors
+	var inside_rooms = M * N - 2 * (N - M + 2) # can have up to 4 corridors
+	
+	var max_corridors = corner_rooms * 2 + edge_rooms * 3 + inside_rooms * 4
+	var corridors_left = randi_range(0, max_corridors - (M * N - 1))
+	
+	# ===
+	
+	var node_list = flattened_room_list()
+	
+	while corridors_left > 0:
+		current = node_list.pick_random()
+		var neighbors = get_neighbors(current)
+		
+		# culls neighbors we already have a path to
+		for neighbor in neighbors:
+			if current.has_path_to.has(neighbor):
+				neighbor = null
+		
+		if neighbors.count(null) == neighbors.size():
+			continue
+		
+		var neighbor
+		while neighbor == null:
+			neighbor = neighbors.pick_random()
+		var side = neighbors.find(neighbor)
+		draw_corridor(current, neighbor, side)
+		corridors_left -= 1
+
 
 func draw_corridor(room: Room, neighbor: Room, side: int):
 	var current_room = room
@@ -199,7 +227,8 @@ func draw_corridor(room: Room, neighbor: Room, side: int):
 		room_to_connect_to.has_path_to.append(current_room)
 
 
-func get_neighbors(room: Room):
+func get_neighbors(room: Room) -> Array:
+	
 	var i = -1
 	var j = -1
 	
@@ -208,9 +237,8 @@ func get_neighbors(room: Room):
 		if col.find(room) > -1:
 			j = col.find(room)
 			i = room_list.find(col)
-			
-	if i == -1 or j == -1:
-		return
+	
+	assert(i != -1 and j != -1)
 	
 	var neighbors = Array() # top: 0, bottom: 1, left: 2, right: 3
 	for k in range(4):
@@ -225,13 +253,14 @@ func get_neighbors(room: Room):
 	if (i + 1) < N: # right
 		neighbors[3] = room_list[i + 1][j]
 	
-	return neighbors
-	
+	return neighbors	
+
 
 func draw_area(range_x: Vector2i, range_y: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
 	for x in range(range_x.x, range_x.y):
 		for y in range(range_y.x, range_y.y):
 			$Layout.set_cell(layer, Vector2i(x, y), source_id, atlas_coords, alternative_tile)
+
 
 # Debug for floor generation
 func _input(event: InputEvent) -> void:
