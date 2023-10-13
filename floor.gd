@@ -21,6 +21,16 @@ func initalize_room_list():
 		room_list.append([])
 		for j in M:
 			room_list[i].append(0)
+			
+
+func flattened_room_list():
+	var flattened_list = Array()
+	
+	for col in room_list:
+		for room in col:
+			flattened_list.append(room)
+			
+	return flattened_list
 
 
 # Called when the node enters the scene tree for the first time.
@@ -105,7 +115,7 @@ func draw_room(room: Room) -> void:
 
 
 func place_corridors() -> void:
-	var unvisited = room_list.duplicate(true)
+	var unvisited = flattened_room_list()
 	var visited = Array()
 	
 	var current = unvisited.pick_random()
@@ -114,19 +124,26 @@ func place_corridors() -> void:
 	
 	while not unvisited.is_empty():
 		var neighbors = get_neighbors(current)
-		var neighbor = neighbors.pick_random()
+		var neighbor
+		while neighbor == null:
+			neighbor = neighbors.pick_random()
+		var side = neighbors.find(neighbor)
 		if not visited.has(neighbor):
-			draw_corridor()
+			draw_corridor(current, neighbor, side)
 			unvisited.erase(neighbor)
 			visited.append(neighbor)
 		current = neighbor
 	
-func draw_corridor(room: Room, neighbor: Room):
+
+func draw_corridor(room: Room, neighbor: Room, side: int):
 	var current_room = room
 	var room_to_connect_to = neighbor
 	
+	if current_room.has_path_to.has(room_to_connect_to) or current_room == null or neighbor == null:
+		return
+	
 	#above
-	if (j - 1) > -1 and !current_room.has_path_to.has(room_list[i][j - 1]):
+	if side == 0:
 
 		var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1) # -1 since width of the path will be 1
 		var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y - 1) # -1 since width of the path will be 1
@@ -140,7 +157,7 @@ func draw_corridor(room: Room, neighbor: Room):
 		room_to_connect_to.has_path_to.append(current_room)
 
 	#below
-	if (j + 1) < M and !current_room.has_path_to.has(room_list[i][j + 1]):
+	elif side == 1:
 
 		var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1)
 		var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y - 1)
@@ -154,7 +171,7 @@ func draw_corridor(room: Room, neighbor: Room):
 		room_to_connect_to.has_path_to.append(current_room)
 
 	#left
-	if (i - 1) > -1 and !current_room.has_path_to.has(room_list[i - 1][j]):
+	elif side == 2:
 
 		var current_room_y = randi_range(current_room.range_y.x, current_room.range_y.y - 1)
 		var room_to_connect_to_y = randi_range(room_to_connect_to.range_y.x, room_to_connect_to.range_y.y - 1)
@@ -168,7 +185,7 @@ func draw_corridor(room: Room, neighbor: Room):
 		room_to_connect_to.has_path_to.append(current_room)
 
 	#right
-	if (i + 1) < N and !current_room.has_path_to.has(room_list[i + 1][j]):
+	elif side == 3:
 
 		var current_room_y = randi_range(current_room.range_y.x, current_room.range_y.y - 1)
 		var room_to_connect_to_y = randi_range(room_to_connect_to.range_y.x, room_to_connect_to.range_y.y - 1)
@@ -188,9 +205,12 @@ func get_neighbors(room: Room):
 	
 	# get rooms coordinates in room_list
 	for col in room_list:
-		if col.find(room):
+		if col.find(room) > -1:
 			j = col.find(room)
 			i = room_list.find(col)
+			
+	if i == -1 or j == -1:
+		return
 	
 	var neighbors = Array() # top: 0, bottom: 1, left: 2, right: 3
 	for k in range(4):
