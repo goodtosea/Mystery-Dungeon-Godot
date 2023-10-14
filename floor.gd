@@ -712,6 +712,16 @@ func deadend_tile_check(surrounding_tiles: Array[Vector2i]) -> bool:
 	return true
 
 
+func draw_border():
+	# top border
+	draw_area(Vector2i(0, width), Vector2i(0, hard_border_width), 0, 0, Vector2i(1, 1), 0)
+	# bottom border
+	draw_area(Vector2i(0, width), Vector2i(height - hard_border_width, height), 0, 0, Vector2i(1, 1), 0)
+	# left border
+	draw_area(Vector2i(0, hard_border_width), Vector2i(0, height), 0, 0, Vector2i(1, 1), 0)
+	# right border
+	draw_area(Vector2i(width - hard_border_width, width), Vector2i(0, height), 0, 0, Vector2i(1, 1), 0)
+
 # Debug for floor generation
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("reload debug"):
