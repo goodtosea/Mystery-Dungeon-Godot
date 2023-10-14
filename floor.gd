@@ -41,7 +41,7 @@ func setup_layout() -> void:
 	create_rooms()
 
 	place_corridors()
-#	place_deadends()
+	place_deadends()
 #	draw_border()
 #	place_exception_tiles()
 #	place_terrain_features()
@@ -227,6 +227,435 @@ func draw_corridor(room: Room, neighbor: Room, side: int):
 		room_to_connect_to.has_path_to.append(current_room)
 
 
+func place_deadends(deadends_left: int = 1):
+	# pick room randomly
+	# pick one of its walls
+	# iteratively generate/draw path (needs to take 2 steps in each direction at least)
+	# until it has a floor or the border in one of the 8 spots around it
+	var rooms = flattened_room_list()
+	var current_room
+	var room_side # 0 - top, 1 - bottom, 2 - left, 3 - right
+	var current_tile
+	var surrounding_tiles
+	var last_tile
+	var direction
+	var new_direction
+	
+	while deadends_left:
+		current_room = rooms.pick_random()
+		room_side = randi_range(0, 3)
+		match room_side:
+			0:
+				# pick random point in the wall
+				var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1)
+				current_tile = Vector2i(current_room_x, current_room.range_y.x)
+				direction = 0
+				
+				current_tile.y -= 1
+				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				last_tile = current_tile
+				current_tile.y -= 1
+				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				
+				# gets surrounding and removes last move
+				surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
+				surrounding_tiles.erase(last_tile)
+				
+				while deadend_tile_check(surrounding_tiles):
+					match direction:
+						0:
+							new_direction = [0, 2, 3]
+							new_direction = new_direction.pick_random()
+							
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.y -= 1
+							
+							elif new_direction == 2:
+								direction = new_direction
+								current_tile.x -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							else: # new_direction == 3
+								direction = new_direction
+								current_tile.x += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x += 1
+						1:
+							new_direction = [1, 2, 3]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.y += 1
+							
+							elif new_direction == 2:
+								direction = new_direction
+								current_tile.x -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							else: # new_direction == 3
+								direction = new_direction
+								current_tile.x += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x += 1
+						2:
+							new_direction = [0, 1, 2]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							elif new_direction == 0:
+								direction = new_direction
+								current_tile.y += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y += 1
+							
+							else: # new_direction == 1
+								direction = new_direction
+								current_tile.y -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y -= 1
+						3:
+							new_direction = [0, 1, 3]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.x += 1
+							
+							elif new_direction == 0:
+								direction = new_direction
+								current_tile.y += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y += 1
+							
+							else: # new_direction == 1
+								direction = new_direction
+								current_tile.y -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y -= 1
+					draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+					surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
+					surrounding_tiles.erase(last_tile)
+			1:
+				var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1)
+				current_tile = Vector2i(current_room_x, current_room.range_y.x)
+				direction = 1
+				
+				current_tile.y += 1
+				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				last_tile = current_tile
+				current_tile.y += 1
+				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				
+				# gets surrounding and removes last move
+				surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
+				surrounding_tiles.erase(last_tile)
+				
+				while deadend_tile_check(surrounding_tiles):
+					match direction:
+						0:
+							new_direction = [0, 2, 3]
+							new_direction = new_direction.pick_random()
+							
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.y -= 1
+							
+							elif new_direction == 2:
+								direction = new_direction
+								current_tile.x -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							else: # new_direction == 3
+								direction = new_direction
+								current_tile.x += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x += 1
+						1:
+							new_direction = [1, 2, 3]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.y += 1
+							
+							elif new_direction == 2:
+								direction = new_direction
+								current_tile.x -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							else: # new_direction == 3
+								direction = new_direction
+								current_tile.x += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x += 1
+						2:
+							new_direction = [0, 1, 2]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							elif new_direction == 0:
+								direction = new_direction
+								current_tile.y += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y += 1
+							
+							else: # new_direction == 1
+								direction = new_direction
+								current_tile.y -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y -= 1
+						3:
+							new_direction = [0, 1, 3]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.x += 1
+							
+							elif new_direction == 0:
+								direction = new_direction
+								current_tile.y += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y += 1
+							
+							else: # new_direction == 1
+								direction = new_direction
+								current_tile.y -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y -= 1
+					draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+					surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
+					surrounding_tiles.erase(last_tile)
+			2:
+				var current_room_y = randi_range(current_room.range_y.x, current_room.range_y.y - 1)
+				current_tile = Vector2i(current_room.range_x.x, current_room_y)
+				direction = 2
+				
+				current_tile.x -= 1
+				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				last_tile = current_tile
+				current_tile.x -= 1
+				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				
+				# gets surrounding and removes last move
+				surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
+				surrounding_tiles.erase(last_tile)
+				
+				while deadend_tile_check(surrounding_tiles):
+					match direction:
+						0:
+							new_direction = [0, 2, 3]
+							new_direction = new_direction.pick_random()
+							
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.y -= 1
+							
+							elif new_direction == 2:
+								direction = new_direction
+								current_tile.x -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							else: # new_direction == 3
+								direction = new_direction
+								current_tile.x += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x += 1
+						1:
+							new_direction = [1, 2, 3]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.y += 1
+							
+							elif new_direction == 2:
+								direction = new_direction
+								current_tile.x -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							else: # new_direction == 3
+								direction = new_direction
+								current_tile.x += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x += 1
+						2:
+							new_direction = [0, 1, 2]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							elif new_direction == 0:
+								direction = new_direction
+								current_tile.y -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y -= 1
+							
+							else: # new_direction == 1
+								direction = new_direction
+								current_tile.y += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y += 1
+						3:
+							new_direction = [0, 1, 3]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.x += 1
+							
+							elif new_direction == 0:
+								direction = new_direction
+								current_tile.y -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y -= 1
+							
+							else: # new_direction == 1
+								direction = new_direction
+								current_tile.y += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y += 1
+					
+					draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+					surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
+					surrounding_tiles.erase(last_tile)
+			3:
+				var current_room_y = randi_range(current_room.range_y.x, current_room.range_y.y - 1)
+				current_tile = Vector2i(current_room.range_x.y - 1, current_room_y)
+				direction = 3
+				
+				current_tile.x += 1
+				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				last_tile = current_tile
+				current_tile.x += 1
+				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				
+				# gets surrounding and removes last move
+				surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
+				surrounding_tiles.erase(last_tile)
+				
+				while deadend_tile_check(surrounding_tiles):
+					match direction:
+						0:
+							new_direction = [0, 2, 3]
+							new_direction = new_direction.pick_random()
+							
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.y -= 1
+							
+							elif new_direction == 2:
+								direction = new_direction
+								current_tile.x -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							else: # new_direction == 3
+								direction = new_direction
+								current_tile.x += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x += 1
+						1:
+							new_direction = [1, 2, 3]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.y += 1
+							
+							elif new_direction == 2:
+								direction = new_direction
+								current_tile.x -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							else: # new_direction == 3
+								direction = new_direction
+								current_tile.x += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.x += 1
+						2:
+							new_direction = [0, 1, 2]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.x -= 1
+							
+							elif new_direction == 0:
+								direction = new_direction
+								current_tile.y += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y += 1
+							
+							else: # new_direction == 1
+								direction = new_direction
+								current_tile.y -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y -= 1
+						3:
+							new_direction = [0, 1, 3]
+							new_direction = new_direction.pick_random()
+							if new_direction == direction:
+								last_tile = current_tile
+								current_tile.x += 1
+							
+							elif new_direction == 0:
+								direction = new_direction
+								current_tile.y += 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y += 1
+							
+							else: # new_direction == 1
+								direction = new_direction
+								current_tile.y -= 1
+								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								last_tile = current_tile
+								current_tile.y -= 1
+					draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+					surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
+					surrounding_tiles.erase(last_tile)
+		
+		draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+		deadends_left -= 1
+
+
 func get_neighbors(room: Room) -> Array:
 	
 	var i = -1
@@ -260,6 +689,27 @@ func draw_area(range_x: Vector2i, range_y: Vector2i, layer: int, source_id: int 
 	for x in range(range_x.x, range_x.y):
 		for y in range(range_y.x, range_y.y):
 			$Layout.set_cell(layer, Vector2i(x, y), source_id, atlas_coords, alternative_tile)
+
+
+func draw_cell(coords: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
+	draw_area(Vector2i(coords.x, coords.x + 1), Vector2i(coords.y, coords.y + 1), layer, source_id, atlas_coords, alternative_tile)
+
+
+func deadend_tile_check(surrounding_tiles: Array[Vector2i]) -> bool:
+	var current_tile_source_id
+	var current_tile_atlas_coords
+	var current_tile_alternative_tile
+	
+	for tile in surrounding_tiles:
+		current_tile_source_id = $Layout.get_cell_source_id(0, tile)
+		current_tile_atlas_coords = $Layout.get_cell_atlas_coords(0, tile)
+		current_tile_alternative_tile = $Layout.get_cell_alternative_tile(0, tile)
+		
+		if current_tile_source_id == 0 and current_tile_atlas_coords == Vector2i(13, 1) and current_tile_alternative_tile == 0:
+			return false
+		elif current_tile_atlas_coords == Vector2i(-1, -1):
+			return false
+	return true
 
 
 # Debug for floor generation
