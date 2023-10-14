@@ -1,17 +1,13 @@
 extends Node
 
-@export var currentSeed = ""
+@export var currentSeed : int = 1
 
 func _ready() -> void:
 	
-	var seedToUse : int = 1
-	
-	if currentSeed:
-		seedToUse = hash(currentSeed)
+	if currentSeed != 1:
+		print("GIVEN SEED: ", currentSeed)
 	else:
-		print(seedToUse)
-		seedToUse = randi()
+		currentSeed = randi()
+		print("RANDOM SEED: ", currentSeed)
 	
-	seed(seedToUse)
-	
-	print("SEED: ", seedToUse)
+	seed(currentSeed)
