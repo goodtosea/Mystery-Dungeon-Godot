@@ -7,7 +7,7 @@ class_name Room
 var range_x
 var range_y
 
-var has_path_to = []
+var connected_rooms = []
 
 func initialize_variables(range_x: Vector2i, range_y: Vector2i) -> void:
 	self.range_x = range_x
