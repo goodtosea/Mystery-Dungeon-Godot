@@ -256,35 +256,35 @@ func draw_corridor(room: Room, neighbor: Room, side_to_draw_corridor: int):
 
 # === Place Deadend Functions
 
-func place_deadends(deadends_left: int = 1):
-	# pick room randomly
-	# pick one of its walls
+func place_deadends(deadends_left: int = 1 ):
+	
+	
 	# iteratively generate/draw path (needs to take 2 steps in each direction at least)
 	# until it has a floor or the border in one of the 8 spots around it
-	var rooms = flattened_room_list_2D()
+	var flat_room_list = flattened_room_list_2D()
 	var current_room
-	var room_side # 0 - top, 1 - bottom, 2 - left, 3 - right
+	var direction # 0 - top, 1 - bottom, 2 - left, 3 - right
+	var new_direction
 	var current_tile
 	var surrounding_tiles
 	var last_tile
-	var direction
-	var new_direction
 	
 	while deadends_left:
-		current_room = rooms.pick_random()
-		room_side = randi_range(0, 3)
-		match room_side:
+		current_room = flat_room_list.pick_random() # pick room randomly
+		direction = randi_range(0, 3) # pick one of its walls // 0 - top, 1 - bottom, 2 - left, 3 - right
+		
+		match direction:
 			0:
 				# pick random point in the wall
 				var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1)
 				current_tile = Vector2i(current_room_x, current_room.range_y.x)
-				direction = 0
 				
+				# initial two steps to get away from the room
 				current_tile.y -= 1
-				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				draw_cell_floor(current_tile)
 				last_tile = current_tile
 				current_tile.y -= 1
-				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				draw_cell_floor(current_tile)
 				
 				# gets surrounding and removes last move
 				surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
@@ -303,14 +303,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 2:
 								direction = new_direction
 								current_tile.x -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x -= 1
 							
 							else: # new_direction == 3
 								direction = new_direction
 								current_tile.x += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x += 1
 						1:
@@ -323,14 +323,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 2:
 								direction = new_direction
 								current_tile.x -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x -= 1
 							
 							else: # new_direction == 3
 								direction = new_direction
 								current_tile.x += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x += 1
 						2:
@@ -343,14 +343,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 0:
 								direction = new_direction
 								current_tile.y += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y += 1
 							
 							else: # new_direction == 1
 								direction = new_direction
 								current_tile.y -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y -= 1
 						3:
@@ -363,29 +363,28 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 0:
 								direction = new_direction
 								current_tile.y += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y += 1
 							
 							else: # new_direction == 1
 								direction = new_direction
 								current_tile.y -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y -= 1
-					draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+					draw_cell_floor(current_tile)
 					surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
 					surrounding_tiles.erase(last_tile)
 			1:
 				var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1)
 				current_tile = Vector2i(current_room_x, current_room.range_y.x)
-				direction = 1
 				
 				current_tile.y += 1
-				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				draw_cell_floor(current_tile)
 				last_tile = current_tile
 				current_tile.y += 1
-				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				draw_cell_floor(current_tile)
 				
 				# gets surrounding and removes last move
 				surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
@@ -404,14 +403,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 2:
 								direction = new_direction
 								current_tile.x -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x -= 1
 							
 							else: # new_direction == 3
 								direction = new_direction
 								current_tile.x += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x += 1
 						1:
@@ -424,14 +423,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 2:
 								direction = new_direction
 								current_tile.x -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x -= 1
 							
 							else: # new_direction == 3
 								direction = new_direction
 								current_tile.x += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x += 1
 						2:
@@ -444,14 +443,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 0:
 								direction = new_direction
 								current_tile.y += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y += 1
 							
 							else: # new_direction == 1
 								direction = new_direction
 								current_tile.y -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y -= 1
 						3:
@@ -464,29 +463,28 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 0:
 								direction = new_direction
 								current_tile.y += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y += 1
 							
 							else: # new_direction == 1
 								direction = new_direction
 								current_tile.y -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y -= 1
-					draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+					draw_cell_floor(current_tile)
 					surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
 					surrounding_tiles.erase(last_tile)
 			2:
 				var current_room_y = randi_range(current_room.range_y.x, current_room.range_y.y - 1)
 				current_tile = Vector2i(current_room.range_x.x, current_room_y)
-				direction = 2
 				
 				current_tile.x -= 1
-				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				draw_cell_floor(current_tile)
 				last_tile = current_tile
 				current_tile.x -= 1
-				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				draw_cell_floor(current_tile)
 				
 				# gets surrounding and removes last move
 				surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
@@ -505,14 +503,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 2:
 								direction = new_direction
 								current_tile.x -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x -= 1
 							
 							else: # new_direction == 3
 								direction = new_direction
 								current_tile.x += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x += 1
 						1:
@@ -525,14 +523,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 2:
 								direction = new_direction
 								current_tile.x -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x -= 1
 							
 							else: # new_direction == 3
 								direction = new_direction
 								current_tile.x += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x += 1
 						2:
@@ -545,14 +543,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 0:
 								direction = new_direction
 								current_tile.y -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y -= 1
 							
 							else: # new_direction == 1
 								direction = new_direction
 								current_tile.y += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y += 1
 						3:
@@ -565,30 +563,29 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 0:
 								direction = new_direction
 								current_tile.y -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y -= 1
 							
 							else: # new_direction == 1
 								direction = new_direction
 								current_tile.y += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y += 1
 					
-					draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+					draw_cell_floor(current_tile)
 					surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
 					surrounding_tiles.erase(last_tile)
 			3:
 				var current_room_y = randi_range(current_room.range_y.x, current_room.range_y.y - 1)
 				current_tile = Vector2i(current_room.range_x.y - 1, current_room_y)
-				direction = 3
 				
 				current_tile.x += 1
-				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				draw_cell_floor(current_tile)
 				last_tile = current_tile
 				current_tile.x += 1
-				draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+				draw_cell_floor(current_tile)
 				
 				# gets surrounding and removes last move
 				surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
@@ -607,14 +604,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 2:
 								direction = new_direction
 								current_tile.x -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x -= 1
 							
 							else: # new_direction == 3
 								direction = new_direction
 								current_tile.x += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x += 1
 						1:
@@ -627,14 +624,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 2:
 								direction = new_direction
 								current_tile.x -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x -= 1
 							
 							else: # new_direction == 3
 								direction = new_direction
 								current_tile.x += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.x += 1
 						2:
@@ -647,14 +644,14 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 0:
 								direction = new_direction
 								current_tile.y += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y += 1
 							
 							else: # new_direction == 1
 								direction = new_direction
 								current_tile.y -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y -= 1
 						3:
@@ -667,21 +664,21 @@ func place_deadends(deadends_left: int = 1):
 							elif new_direction == 0:
 								direction = new_direction
 								current_tile.y += 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y += 1
 							
 							else: # new_direction == 1
 								direction = new_direction
 								current_tile.y -= 1
-								draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+								draw_cell_floor(current_tile)
 								last_tile = current_tile
 								current_tile.y -= 1
-					draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+					draw_cell_floor(current_tile)
 					surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
 					surrounding_tiles.erase(last_tile)
 		
-		draw_cell(current_tile, 0, 0, Vector2i(13, 1), 0)
+		draw_cell_floor(current_tile)
 		deadends_left -= 1
 
 
