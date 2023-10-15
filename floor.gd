@@ -10,7 +10,7 @@ var room = preload("res://room.tscn")
 @export var border_width := 2
 @export var width := 56 - border_width
 @export var height := 32 - border_width
-
+@export var dead_ends := 1
 
 @export var M := 2
 @export var N := 3
@@ -100,7 +100,7 @@ func setup_layout() -> void:
 	create_rooms()
 
 	place_corridors()
-	place_deadends()
+	place_deadends(dead_ends)
 	draw_border()
 	# place_exception_tiles()
 	# place_terrain_features()
@@ -330,14 +330,12 @@ func place_deadends(deadends_left: int = 1 ):
 						current_tile.y -= 1
 					
 					elif new_direction == 2:
-						direction = new_direction
 						current_tile.x -= 1
 						draw_cell_floor(current_tile)
 						last_tile = current_tile
 						current_tile.x -= 1
 					
 					else: # new_direction == 3
-						direction = new_direction
 						current_tile.x += 1
 						draw_cell_floor(current_tile)
 						last_tile = current_tile
@@ -345,19 +343,18 @@ func place_deadends(deadends_left: int = 1 ):
 				1:
 					new_direction = [1, 2, 3]
 					new_direction = new_direction.pick_random()
+					
 					if new_direction == direction:
 						last_tile = current_tile
 						current_tile.y += 1
 					
 					elif new_direction == 2:
-						direction = new_direction
 						current_tile.x -= 1
 						draw_cell_floor(current_tile)
 						last_tile = current_tile
 						current_tile.x -= 1
 					
 					else: # new_direction == 3
-						direction = new_direction
 						current_tile.x += 1
 						draw_cell_floor(current_tile)
 						last_tile = current_tile
@@ -365,19 +362,18 @@ func place_deadends(deadends_left: int = 1 ):
 				2:
 					new_direction = [0, 1, 2]
 					new_direction = new_direction.pick_random()
+					
 					if new_direction == direction:
 						last_tile = current_tile
 						current_tile.x -= 1
 					
 					elif new_direction == 0:
-						direction = new_direction
 						current_tile.y += 1
 						draw_cell_floor(current_tile)
 						last_tile = current_tile
 						current_tile.y += 1
 					
 					else: # new_direction == 1
-						direction = new_direction
 						current_tile.y -= 1
 						draw_cell_floor(current_tile)
 						last_tile = current_tile
@@ -385,23 +381,23 @@ func place_deadends(deadends_left: int = 1 ):
 				3:
 					new_direction = [0, 1, 3]
 					new_direction = new_direction.pick_random()
+					
 					if new_direction == direction:
 						last_tile = current_tile
 						current_tile.x += 1
 					
 					elif new_direction == 0:
-						direction = new_direction
 						current_tile.y += 1
 						draw_cell_floor(current_tile)
 						last_tile = current_tile
 						current_tile.y += 1
 					
 					else: # new_direction == 1
-						direction = new_direction
 						current_tile.y -= 1
 						draw_cell_floor(current_tile)
 						last_tile = current_tile
 						current_tile.y -= 1
+			direction = new_direction
 			
 			draw_cell_floor(current_tile)
 			surrounding_tiles = $Layout.get_surrounding_cells(current_tile)
@@ -432,7 +428,10 @@ func deadend_tile_check(surrounding_tiles: Array[Vector2i]) -> bool:
 		if current_tile_source_id == 0 and current_tile_atlas_coords == Vector2i(13, 1) and current_tile_alternative_tile == 0:
 			return false
 		# Empty tile check
-		elif current_tile_atlas_coords == Vector2i(-1, -1):
+		elif current_tile_source_id == 0 and current_tile_atlas_coords == Vector2i(5, 2) and current_tile_alternative_tile == 0:
+			return false
+		# Invalid(?) tile check
+		elif current_tile_source_id == -1 and current_tile_atlas_coords == Vector2i(-1, -1) and current_tile_alternative_tile == -1:
 			return false
 	return true
 
