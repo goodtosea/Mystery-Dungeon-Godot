@@ -63,9 +63,28 @@ func get_neighbors(room: Room) -> Array:
 
 
 func draw_area(range_x: Vector2i, range_y: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
+	# Guard to make sure the range values are increasing order
+	if range_x.y < range_x.x:
+		var temp = range_x.y
+		range_x.y = range_x.x
+		range_x.x = temp
+	if range_y.y < range_y.x:
+		var temp = range_y.y
+		range_y.y = range_y.x
+		range_y.x = temp
+	
 	for x in range(range_x.x, range_x.y):
 		for y in range(range_y.x, range_y.y):
 			$Layout.set_cell(layer, Vector2i(x, y), source_id, atlas_coords, alternative_tile)
+
+
+func draw_area_floor(range_x: Vector2i, range_y: Vector2i):
+	draw_area(range_x, range_y, 0, 0, Vector2i(13, 1), 0)
+
+
+func draw_area_wall(range_x: Vector2i, range_y: Vector2i):
+	draw_area(range_x, range_y, 0, 0, Vector2i(1, 1), 0)
+
 
 # === Initialization
 
@@ -180,7 +199,8 @@ func place_corridors() -> void:
 		
 		var neighbor
 		while neighbor == null:
-			neighbor = neighbors.pick_random()
+			neighbor = neighbors.pick_random() # # TODO: Minor code optimization possible since this has theoretical T(n) = infinity
+		
 		var side_to_draw_corridor = neighbors.find(neighbor) # TODO: get_neighbors saves them in a not obvious specific order of (0: top, 1: bottom, 2: left, 3: right)
 		draw_corridor(current, neighbor, side_to_draw_corridor)
 		corridors_left -= 1
@@ -193,52 +213,44 @@ func draw_corridor(room: Room, neighbor: Room, side_to_draw_corridor: int):
 	if current_room.connected_rooms.has(room_to_connect_to) or current_room == null or neighbor == null:
 		return
 	
-	#above
 	match side_to_draw_corridor:
 		0:
-			var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1) # -1 since width of the path will be 1
-			var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y - 1) # -1 since width of the path will be 1
-			var corridor_connection_y = randi_range(room_to_connect_to.range_y.y + 1, current_room.range_y.x - 2) # +1 and -1 so it doesn't include the walls
+			var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1) 					# -1 since width of the path will be 1
+			var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y - 1) 	# -1 since width of the path will be 1
+			var corridor_connection_y = randi_range(room_to_connect_to.range_y.y + 1, current_room.range_y.x - 2) 	# +1 and -1 so it doesn't include the walls
 
-			draw_area(Vector2i(current_room_x, current_room_x + 1), Vector2i(min(corridor_connection_y, current_room.range_y.x), max(corridor_connection_y, current_room.range_y.x)), 0, 0, Vector2i(13, 1), 0) # current room to the midpoint
-			draw_area(Vector2i(room_to_connect_to_x, room_to_connect_to_x + 1), Vector2i(min(room_to_connect_to.range_y.y, corridor_connection_y), max(room_to_connect_to.range_y.y, corridor_connection_y)), 0, 0, Vector2i(13, 1), 0) # room to connect to to the midpoint
-			draw_area(Vector2i(min(current_room_x, room_to_connect_to_x), max(current_room_x, room_to_connect_to_x) + 1), Vector2i(corridor_connection_y, corridor_connection_y + 1), 0, 0, Vector2i(13, 1), 0) # connect the two
-
-			current_room.connected_rooms.append(room_to_connect_to)
-			room_to_connect_to.connected_rooms.append(current_room)
+			draw_area_floor(Vector2i(current_room_x, current_room_x + 1), Vector2i(corridor_connection_y, current_room.range_y.x)) 																# current_room to the midpoint
+			draw_area_floor(Vector2i(room_to_connect_to_x, room_to_connect_to_x + 1), Vector2i(room_to_connect_to.range_y.y, corridor_connection_y)) 											# room_to_connect to to the midpoint
+			draw_area_floor(Vector2i(min(current_room_x, room_to_connect_to_x), max(current_room_x, room_to_connect_to_x) + 1), Vector2i(corridor_connection_y, corridor_connection_y + 1)) 	# straight line between the two ends
+			
 		1:
 			var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1)
 			var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y - 1)
 			var corridor_connection_y = randi_range(current_room.range_y.y + 1, room_to_connect_to.range_y.x - 2)
 
-			draw_area(Vector2i(current_room_x, current_room_x + 1), Vector2i(min(corridor_connection_y, current_room.range_y.x), max(corridor_connection_y, current_room.range_y.x)), 0, 0, Vector2i(13, 1), 0) # current room to the midpoint
-			draw_area(Vector2i(room_to_connect_to_x, room_to_connect_to_x + 1), Vector2i(min(room_to_connect_to.range_y.y, corridor_connection_y), max(room_to_connect_to.range_y.y, corridor_connection_y)), 0, 0, Vector2i(13, 1), 0) # room to connect to to the midpoint
-			draw_area(Vector2i(min(current_room_x, room_to_connect_to_x), max(current_room_x, room_to_connect_to_x) + 1), Vector2i(corridor_connection_y, corridor_connection_y + 1), 0, 0, Vector2i(13, 1), 0) # connect the two
-
-			current_room.connected_rooms.append(room_to_connect_to)
-			room_to_connect_to.connected_rooms.append(current_room)
+			draw_area_floor(Vector2i(current_room_x, current_room_x + 1), Vector2i(current_room.range_y.y, corridor_connection_y))
+			draw_area_floor(Vector2i(room_to_connect_to_x, room_to_connect_to_x + 1), Vector2i(corridor_connection_y, room_to_connect_to.range_y.x))
+			draw_area_floor(Vector2i(min(current_room_x, room_to_connect_to_x), max(current_room_x, room_to_connect_to_x) + 1), Vector2i(corridor_connection_y, corridor_connection_y + 1)) 
+			
 		2:
 			var current_room_y = randi_range(current_room.range_y.x, current_room.range_y.y - 1)
 			var room_to_connect_to_y = randi_range(room_to_connect_to.range_y.x, room_to_connect_to.range_y.y - 1)
 			var corridor_connection_x = randi_range(room_to_connect_to.range_x.y + 1, current_room.range_x.x - 2)
 
-			draw_area(Vector2i(min(corridor_connection_x, current_room.range_x.x), max(corridor_connection_x, current_room.range_x.x)), Vector2i(current_room_y, current_room_y + 1), 0, 0, Vector2i(13, 1), 0) # current room to the midpoint
-			draw_area(Vector2i(min(room_to_connect_to.range_x.y, corridor_connection_x), max(room_to_connect_to.range_x.y, corridor_connection_x)), Vector2i(room_to_connect_to_y, room_to_connect_to_y + 1), 0, 0, Vector2i(13, 1), 0) # room to connect to to the midpoint
-			draw_area(Vector2i(corridor_connection_x, corridor_connection_x + 1), Vector2i(min(current_room_y, room_to_connect_to_y), max(current_room_y, room_to_connect_to_y) + 1), 0, 0, Vector2i(13, 1), 0) # connect the two
-
-			current_room.connected_rooms.append(room_to_connect_to)
-			room_to_connect_to.connected_rooms.append(current_room)
+			draw_area_floor(Vector2i(corridor_connection_x, current_room.range_x.x), Vector2i(current_room_y, current_room_y + 1))
+			draw_area_floor(Vector2i(room_to_connect_to.range_x.y, corridor_connection_x), Vector2i(room_to_connect_to_y, room_to_connect_to_y + 1))
+			draw_area_floor(Vector2i(corridor_connection_x, corridor_connection_x + 1), Vector2i(min(current_room_y, room_to_connect_to_y), max(current_room_y, room_to_connect_to_y) + 1))
 		3:
 			var current_room_y = randi_range(current_room.range_y.x, current_room.range_y.y - 1)
 			var room_to_connect_to_y = randi_range(room_to_connect_to.range_y.x, room_to_connect_to.range_y.y - 1)
 			var corridor_connection_x = randi_range(current_room.range_x.y + 1, room_to_connect_to.range_x.x - 2)
 
-			draw_area(Vector2i(min(corridor_connection_x, current_room.range_x.y), max(corridor_connection_x, current_room.range_x.y)), Vector2i(current_room_y, current_room_y + 1), 0, 0, Vector2i(13, 1), 0) # current room to the midpoint
-			draw_area(Vector2i(min(room_to_connect_to.range_x.x, corridor_connection_x), max(room_to_connect_to.range_x.x, corridor_connection_x)), Vector2i(room_to_connect_to_y, room_to_connect_to_y + 1), 0, 0, Vector2i(13, 1), 0) # room to connect to to the midpoint
-			draw_area(Vector2i(corridor_connection_x, corridor_connection_x + 1), Vector2i(min(current_room_y, room_to_connect_to_y), max(current_room_y, room_to_connect_to_y) + 1), 0, 0, Vector2i(13, 1), 0) # connect the two
-
-			current_room.connected_rooms.append(room_to_connect_to)
-			room_to_connect_to.connected_rooms.append(current_room)
+			draw_area_floor(Vector2i(current_room.range_x.y, corridor_connection_x), Vector2i(current_room_y, current_room_y + 1))
+			draw_area_floor(Vector2i(corridor_connection_x, room_to_connect_to.range_x.x), Vector2i(room_to_connect_to_y, room_to_connect_to_y + 1))
+			draw_area_floor(Vector2i(corridor_connection_x, corridor_connection_x + 1), Vector2i(min(current_room_y, room_to_connect_to_y), max(current_room_y, room_to_connect_to_y) + 1))
+	
+	current_room.connected_rooms.append(room_to_connect_to)
+	room_to_connect_to.connected_rooms.append(current_room)
 
 # === Place Deadend Functions
 
@@ -675,18 +687,24 @@ func draw_cell(coords: Vector2i, layer: int, source_id: int = -1, atlas_coords: 
 	$Layout.set_cell(layer, Vector2i(coords.x, coords.y), source_id, atlas_coords, alternative_tile)
 
 
+func draw_cell_floor(coords: Vector2i):
+	draw_cell(coords, 0, 0, Vector2i(13, 1), 0)
+
+
 func deadend_tile_check(surrounding_tiles: Array[Vector2i]) -> bool:
 	var current_tile_source_id
 	var current_tile_atlas_coords
 	var current_tile_alternative_tile
 	
 	for tile in surrounding_tiles:
-		current_tile_source_id = $Layout.get_cell_source_id(0, tile)
-		current_tile_atlas_coords = $Layout.get_cell_atlas_coords(0, tile)
-		current_tile_alternative_tile = $Layout.get_cell_alternative_tile(0, tile)
+		current_tile_source_id 			= $Layout.get_cell_source_id(0, tile)
+		current_tile_atlas_coords 		= $Layout.get_cell_atlas_coords(0, tile)
+		current_tile_alternative_tile 	= $Layout.get_cell_alternative_tile(0, tile)
 		
+		# Floor tile check
 		if current_tile_source_id == 0 and current_tile_atlas_coords == Vector2i(13, 1) and current_tile_alternative_tile == 0:
 			return false
+		# Empty tile check
 		elif current_tile_atlas_coords == Vector2i(-1, -1):
 			return false
 	return true
