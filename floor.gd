@@ -7,9 +7,10 @@ var room_list_2D := []
 var room = preload("res://room.tscn")
 
 # TODO: figure out how to keep rooms from generating in the border (smaller size and draw walls on the outside?)
-@export var width := 56
-@export var height := 32
-@export var hard_border_width := 2
+@export var border_width := 2
+@export var width := 56 - border_width
+@export var height := 32 - border_width
+
 
 @export var M := 2
 @export var N := 3
@@ -100,9 +101,9 @@ func setup_layout() -> void:
 
 	place_corridors()
 	place_deadends()
-#	draw_border()
-#	place_exception_tiles()
-#	place_terrain_features()
+	draw_border()
+	# place_exception_tiles()
+	# place_terrain_features()
 
 # === Fill With Wall Tiles Functions
 
@@ -194,12 +195,13 @@ func place_corridors() -> void:
 			if current.connected_rooms.has(neighbor):
 				neighbor = null
 		
-		if neighbors.count(null) == neighbors.size(): # continue if all the adjacent rooms are already connected to
+		# continue if all the adjacent rooms are already connected to
+		if neighbors.count(null) == neighbors.size(): 
 			continue
 		
 		var neighbor
 		while neighbor == null:
-			neighbor = neighbors.pick_random() # # TODO: Minor code optimization possible since this has theoretical T(n) = infinity
+			neighbor = neighbors.pick_random() # TODO: Minor code optimization possible since this has theoretical T(n) = infinity
 		
 		var side_to_draw_corridor = neighbors.find(neighbor) # TODO: get_neighbors saves them in a not obvious specific order of (0: top, 1: bottom, 2: left, 3: right)
 		draw_corridor(current, neighbor, side_to_draw_corridor)
@@ -215,9 +217,9 @@ func draw_corridor(room: Room, neighbor: Room, side_to_draw_corridor: int):
 	
 	match side_to_draw_corridor:
 		0:
-			var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1) 					# -1 since width of the path will be 1
-			var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y - 1) 	# -1 since width of the path will be 1
-			var corridor_connection_y = randi_range(room_to_connect_to.range_y.y + 1, current_room.range_y.x - 2) 	# +1 and -1 so it doesn't include the walls
+			var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1) 						# -1 since width of the path will be 1
+			var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y - 1) 		# -1 since width of the path will be 1
+			var corridor_connection_y = randi_range(room_to_connect_to.range_y.y + 1, current_room.range_y.x - 2) 		# +1 and -1 so it doesn't include the walls
 
 			draw_area_floor(Vector2i(current_room_x, current_room_x + 1), Vector2i(corridor_connection_y, current_room.range_y.x)) 																# current_room to the midpoint
 			draw_area_floor(Vector2i(room_to_connect_to_x, room_to_connect_to_x + 1), Vector2i(room_to_connect_to.range_y.y, corridor_connection_y)) 											# room_to_connect to to the midpoint
@@ -713,13 +715,13 @@ func deadend_tile_check(surrounding_tiles: Array[Vector2i]) -> bool:
 
 func draw_border():
 	# top border
-	draw_area(Vector2i(0, width), Vector2i(0, hard_border_width), 0, 0, Vector2i(1, 1), 0)
+	draw_area_wall(Vector2i(-border_width, width + border_width), Vector2i(-border_width, 0))
 	# bottom border
-	draw_area(Vector2i(0, width), Vector2i(height - hard_border_width, height), 0, 0, Vector2i(1, 1), 0)
+	draw_area_wall(Vector2i(-border_width, width + border_width), Vector2i(height, height + border_width))
 	# left border
-	draw_area(Vector2i(0, hard_border_width), Vector2i(0, height), 0, 0, Vector2i(1, 1), 0)
+	draw_area_wall(Vector2i(-border_width, 0), Vector2i(0, height))
 	# right border
-	draw_area(Vector2i(width - hard_border_width, width), Vector2i(0, height), 0, 0, Vector2i(1, 1), 0)
+	draw_area_wall(Vector2i(width, width + border_width), Vector2i(0, height))
 
 # === Debug Functions
 
