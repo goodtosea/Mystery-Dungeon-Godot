@@ -7,7 +7,7 @@
 
 [node name="Seed Generator" type="Node" parent="."]
 script = ExtResource("2_ap8lg")
-currentSeed = 2103167917
+currentSeed = 4042795275
 
 [node name="Dungeon" type="Node" parent="."]
 

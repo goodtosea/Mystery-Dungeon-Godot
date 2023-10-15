@@ -2,7 +2,7 @@ extends Area2D
 
 class_name Floor;
 
-var room_list := []
+var room_list_2D := []
 
 var room = preload("res://room.tscn")
 
@@ -13,25 +13,57 @@ var room = preload("res://room.tscn")
 @export var M := 2
 @export var N := 3
 
-func initalize_room_list():
+# === Common Functions
+
+func initalize_room_list_2D() -> void:
 	for i in N:
-		room_list.append([])
+		room_list_2D.append([])
 		for j in M:
-			room_list[i].append(0)
+			room_list_2D[i].append(0)
 
 
-func flattened_room_list():
+func flattened_room_list_2D() -> Array:
 	var flattened_list = Array()
 	
-	for col in room_list:
+	for col in room_list_2D:
 		for room in col:
 			flattened_list.append(room)
 			
 	return flattened_list
 
 
+func get_neighbors(room: Room) -> Array:
+	
+	var i = -1
+	var j = -1
+	
+	# get rooms coordinates in room_list_2D
+	for col in room_list_2D:
+		if col.find(room) > -1:
+			j = col.find(room)
+			i = room_list_2D.find(col)
+	
+	assert(i != -1 and j != -1)
+	
+	var neighbors = Array() # top: 0, bottom: 1, left: 2, right: 3
+	for k in range(4):
+		neighbors.append(null)
+	
+	if (j - 1) > -1: # top
+		neighbors[0] = room_list_2D[i][j - 1]
+	if (j + 1) < M: # bottom
+		neighbors[1] = room_list_2D[i][j + 1]
+	if (i - 1) > -1: # left
+		neighbors[2] = room_list_2D[i - 1][j]
+	if (i + 1) < N: # right
+		neighbors[3] = room_list_2D[i + 1][j]
+	
+	return neighbors
+
+# === Initialization
+
 func _ready() -> void:
-	initalize_room_list()
+	initalize_room_list_2D()
 	setup_layout()
 
 
@@ -46,10 +78,12 @@ func setup_layout() -> void:
 #	place_exception_tiles()
 #	place_terrain_features()
 
+# === Fill With Walls Functions
 
 func fill_with_walls() -> void:
 	draw_area(Vector2i(0, width), Vector2i(0, height), 0, 0, Vector2i(1, 1), 0)
 
+# === Create Rooms Functions
 
 func create_rooms() -> void:
 
@@ -76,12 +110,12 @@ func create_rooms() -> void:
 			
 			var current_room = room.instantiate()
 			current_room.initialize_variables(Vector2i(offset_x, offset_x + room_size_x), Vector2i(offset_y, offset_y + room_size_y))
-			room_list[i][j] = current_room
+			room_list_2D[i][j] = current_room
 			add_child(current_room)
 			
 		
 	# for each room, run place_room(x, y)
-	for column in room_list:
+	for column in room_list_2D:
 		for room in column:
 			draw_room(room)
 
@@ -90,24 +124,11 @@ func draw_room(room: Room) -> void:
 	for x in room.range_x:
 		for y in room.range_y:
 			$Layout.set_cell(0, Vector2i(x, y), 0, Vector2i(13, 1), 0)
-		
-#	var sector_size_x = range_x.y - range_x.x
-#	var sector_size_y = range_y.y - range_y.x
-#
-#	var room_size_x := randi_range(5, sector_size_x) # replace 10 with size of sector later
-#	var room_size_y := randi_range(4, sector_size_y)
-#
-#	# var offset_x := randi_range(hard_border_width, width - hard_border_width - room_size_x)
-#	# var offset_y := randi_range(hard_border_width, height - hard_border_width - room_size_y)
-#
-#	var offset_x := randi_range(range_x.x, range_x.y - room_size_x)
-#	var offset_y := randi_range(range_y.x, range_y.y - room_size_y)
 
-	# offset picks a point within the playing space accounting for the border
-
+# === Place Corridor Functions
 
 func place_corridors() -> void:
-	var unvisited = flattened_room_list()
+	var unvisited = flattened_room_list_2D()
 	var visited = Array()
 	
 	var current = unvisited.pick_random()
@@ -141,7 +162,7 @@ func place_corridors() -> void:
 	
 	# ===
 	
-	var node_list = flattened_room_list()
+	var node_list = flattened_room_list_2D()
 	
 	while corridors_left > 0:
 		current = node_list.pick_random()
@@ -226,13 +247,14 @@ func draw_corridor(room: Room, neighbor: Room, side: int):
 		current_room.has_path_to.append(room_to_connect_to)
 		room_to_connect_to.has_path_to.append(current_room)
 
+# === Place Deadend Functions
 
 func place_deadends(deadends_left: int = 1):
 	# pick room randomly
 	# pick one of its walls
 	# iteratively generate/draw path (needs to take 2 steps in each direction at least)
 	# until it has a floor or the border in one of the 8 spots around it
-	var rooms = flattened_room_list()
+	var rooms = flattened_room_list_2D()
 	var current_room
 	var room_side # 0 - top, 1 - bottom, 2 - left, 3 - right
 	var current_tile
@@ -656,43 +678,14 @@ func place_deadends(deadends_left: int = 1):
 		deadends_left -= 1
 
 
-func get_neighbors(room: Room) -> Array:
-	
-	var i = -1
-	var j = -1
-	
-	# get rooms coordinates in room_list
-	for col in room_list:
-		if col.find(room) > -1:
-			j = col.find(room)
-			i = room_list.find(col)
-	
-	assert(i != -1 and j != -1)
-	
-	var neighbors = Array() # top: 0, bottom: 1, left: 2, right: 3
-	for k in range(4):
-		neighbors.append(null)
-	
-	if (j - 1) > -1: # top
-		neighbors[0] = room_list[i][j - 1]
-	if (j + 1) < M: # bottom
-		neighbors[1] = room_list[i][j + 1]
-	if (i - 1) > -1: # left
-		neighbors[2] = room_list[i - 1][j]
-	if (i + 1) < N: # right
-		neighbors[3] = room_list[i + 1][j]
-	
-	return neighbors	
+func draw_cell(coords: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
+	draw_area(Vector2i(coords.x, coords.x + 1), Vector2i(coords.y, coords.y + 1), layer, source_id, atlas_coords, alternative_tile)
 
 
 func draw_area(range_x: Vector2i, range_y: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
 	for x in range(range_x.x, range_x.y):
 		for y in range(range_y.x, range_y.y):
 			$Layout.set_cell(layer, Vector2i(x, y), source_id, atlas_coords, alternative_tile)
-
-
-func draw_cell(coords: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
-	draw_area(Vector2i(coords.x, coords.x + 1), Vector2i(coords.y, coords.y + 1), layer, source_id, atlas_coords, alternative_tile)
 
 
 func deadend_tile_check(surrounding_tiles: Array[Vector2i]) -> bool:
@@ -711,6 +704,7 @@ func deadend_tile_check(surrounding_tiles: Array[Vector2i]) -> bool:
 			return false
 	return true
 
+# === Draw Border Functions
 
 func draw_border():
 	# top border
@@ -722,7 +716,9 @@ func draw_border():
 	# right border
 	draw_area(Vector2i(width - hard_border_width, width), Vector2i(0, height), 0, 0, Vector2i(1, 1), 0)
 
-# Debug for floor generation
+# === Debug Functions
+
+# default: r to reload scene
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("reload debug"):
 		get_tree().reload_current_scene()
