@@ -6,6 +6,7 @@ var room_list_2D := []
 
 var room = preload("res://room.tscn")
 
+# TODO: figure out how to keep rooms from generating in the border (smaller size and draw walls on the outside?)
 @export var width := 56
 @export var height := 32
 @export var hard_border_width := 2
@@ -59,6 +60,12 @@ func get_neighbors(room: Room) -> Array:
 		neighbors[3] = room_list_2D[i + 1][j]
 	
 	return neighbors
+
+
+func draw_area(range_x: Vector2i, range_y: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
+	for x in range(range_x.x, range_x.y):
+		for y in range(range_y.x, range_y.y):
+			$Layout.set_cell(layer, Vector2i(x, y), source_id, atlas_coords, alternative_tile)
 
 # === Initialization
 
@@ -680,12 +687,6 @@ func place_deadends(deadends_left: int = 1):
 
 func draw_cell(coords: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
 	draw_area(Vector2i(coords.x, coords.x + 1), Vector2i(coords.y, coords.y + 1), layer, source_id, atlas_coords, alternative_tile)
-
-
-func draw_area(range_x: Vector2i, range_y: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
-	for x in range(range_x.x, range_x.y):
-		for y in range(range_y.x, range_y.y):
-			$Layout.set_cell(layer, Vector2i(x, y), source_id, atlas_coords, alternative_tile)
 
 
 func deadend_tile_check(surrounding_tiles: Array[Vector2i]) -> bool:
