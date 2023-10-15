@@ -44,7 +44,7 @@ func get_neighbors(room: Room) -> Array:
 			j = col.find(room)
 			i = room_list_2D.find(col)
 	
-	assert(i != -1 and j != -1)
+	assert(i != -1 and j != -1) # TODO: Better permanent solution
 	
 	var neighbors = Array() # top: 0, bottom: 1, left: 2, right: 3
 	for k in range(4):
@@ -75,7 +75,7 @@ func _ready() -> void:
 
 
 func setup_layout() -> void:
-	fill_with_walls()
+	fill_area_with_wall_tiles()
 
 	create_rooms()
 
@@ -85,19 +85,15 @@ func setup_layout() -> void:
 #	place_exception_tiles()
 #	place_terrain_features()
 
-# === Fill With Walls Functions
+# === Fill With Wall Tiles Functions
 
-func fill_with_walls() -> void:
+func fill_area_with_wall_tiles() -> void:
 	draw_area(Vector2i(0, width), Vector2i(0, height), 0, 0, Vector2i(1, 1), 0)
 
 # === Create Rooms Functions
 
 func create_rooms() -> void:
-
-#	place_room(Vector2i(hard_border_width, width - hard_border_width), 
-#		Vector2i(hard_border_width, height - hard_border_width)) # generates one large room
-
-	# get room bounds (goes 0 to N - 1 supposedly)
+	# get room bounds
 	for i in N:
 		for j in M:
 			# Sector logic
@@ -119,9 +115,7 @@ func create_rooms() -> void:
 			current_room.initialize_variables(Vector2i(offset_x, offset_x + room_size_x), Vector2i(offset_y, offset_y + room_size_y))
 			room_list_2D[i][j] = current_room
 			add_child(current_room)
-			
-		
-	# for each room, run place_room(x, y)
+	
 	for column in room_list_2D:
 		for room in column:
 			draw_room(room)
@@ -142,12 +136,12 @@ func place_corridors() -> void:
 	unvisited.erase(current)
 	visited.append(current)
 	
-	# Creates what is basically a connected undirected map
+	# Creates what is basically a connected undirected map from the rooms
 	while not unvisited.is_empty():
 		var neighbors = get_neighbors(current)
 		var neighbor
 		while neighbor == null:
-			neighbor = neighbors.pick_random()
+			neighbor = neighbors.pick_random() # TODO: Minor code optimization possible since this has theoretical T(n) = infinity
 		var side = neighbors.find(neighbor)
 		if not visited.has(neighbor):
 			draw_corridor(current, neighbor, side)
@@ -186,7 +180,7 @@ func place_corridors() -> void:
 		var neighbor
 		while neighbor == null:
 			neighbor = neighbors.pick_random()
-		var side = neighbors.find(neighbor)
+		var side = neighbors.find(neighbor) # TODO: get_neighbors saves them in a not obvious specific order of (0: top, 1: bottom, 2: left, 3: right)
 		draw_corridor(current, neighbor, side)
 		corridors_left -= 1
 
@@ -686,7 +680,7 @@ func place_deadends(deadends_left: int = 1):
 
 
 func draw_cell(coords: Vector2i, layer: int, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
-	draw_area(Vector2i(coords.x, coords.x + 1), Vector2i(coords.y, coords.y + 1), layer, source_id, atlas_coords, alternative_tile)
+	$Layout.set_cell(layer, Vector2i(coords.x, coords.y), source_id, atlas_coords, alternative_tile)
 
 
 func deadend_tile_check(surrounding_tiles: Array[Vector2i]) -> bool:
