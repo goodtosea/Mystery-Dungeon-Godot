@@ -12,6 +12,8 @@ var room = preload("res://room.tscn")
 @export var height := 32 - border_width
 @export var dead_ends := 1
 
+@export var room_density := 2
+
 @export var M := 2
 @export var N := 3
 
@@ -136,9 +138,42 @@ func create_rooms() -> void:
 			room_list_2D[i][j] = current_room
 			add_child(current_room)
 	
+	# before drawing, make the dummy 1x1 rooms randomly selecting from room_list
+	var rooms_to_make_1x1 := M * N - room_density_handling()
+	var flattened_room_list = flattened_room_list_2D()
+	var current_room
+	flattened_room_list.shuffle() # randomize rooms so we can pop
+	
+	while rooms_to_make_1x1 > 0:
+		current_room = flattened_room_list.pop_front()
+		current_room.range_x.y = current_room.range_x.x + 1
+		current_room.range_y.y = current_room.range_y.x + 1
+		current_room.reset_position()
+		rooms_to_make_1x1 -= 1
+		
+	
 	for column in room_list_2D:
 		for room in column:
 			draw_room(room)
+
+
+func room_density_handling() -> int:
+	# Can't have a map with less than 2 rooms
+	var temp := room_density
+	var non_dummy_rooms := 0
+	if -2 < room_density and room_density < 0:
+		temp = -2
+	if 0 <= room_density and room_density < 2:
+		temp = 2
+	
+	
+	# negative number is exact, positive is between room_density and the max number of rooms
+	if temp < 0:
+		non_dummy_rooms = abs(temp)
+	else:
+		non_dummy_rooms = randi_range(temp, M * N)
+	
+	return non_dummy_rooms
 
 
 func draw_room(room: Room) -> void:
