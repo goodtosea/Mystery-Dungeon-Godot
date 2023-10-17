@@ -14,6 +14,8 @@ var room = preload("res://room.tscn")
 
 @export var room_density := 2
 
+@export var room_merge_percent := 5
+
 @export var M := 2
 @export var N := 3
 
@@ -114,7 +116,7 @@ func fill_area_with_wall_tiles() -> void:
 
 # === Create Rooms Functions
 
-func create_rooms() -> void:
+func create_rooms() -> void: 
 	# get room bounds
 	for i in N:
 		for j in M:
@@ -150,7 +152,6 @@ func create_rooms() -> void:
 		current_room.range_y.y = current_room.range_y.x + 1
 		current_room.reset_position()
 		rooms_to_make_1x1 -= 1
-		
 	
 	for column in room_list_2D:
 		for room in column:
@@ -288,6 +289,24 @@ func draw_corridor(room: Room, neighbor: Room, side_to_draw_corridor: int):
 	
 	current_room.connected_rooms.append(room_to_connect_to)
 	room_to_connect_to.connected_rooms.append(current_room)
+	
+	if randi_range(0, 100) < room_merge_percent:
+		merge_rooms(current_room, room_to_connect_to)
+		draw_room(current_room) # TODO: if merge_rooms returns early this is a waste
+
+
+func merge_rooms(room_1: Room, room_2: Room):
+	if room_1.get_area() == 1 or room_2.get_area() == 1:
+		return
+	
+	var new_room_range_x := Vector2i(min(room_1.range_x.x, room_2.range_x.x), max(room_1.range_x.y, room_2.range_x.y))
+	var new_room_range_y := Vector2i(min(room_1.range_y.x, room_2.range_y.x), max(room_1.range_y.y, room_2.range_y.y))
+	
+	# TODO: make this less jank
+	room_1.range_x = new_room_range_x
+	room_1.range_y = new_room_range_y
+	room_2.range_x = new_room_range_x
+	room_2.range_y = new_room_range_y
 
 # === Place Deadend Functions
 

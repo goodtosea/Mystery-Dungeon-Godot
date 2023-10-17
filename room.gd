@@ -18,3 +18,7 @@ func initialize_variables(range_x: Vector2i, range_y: Vector2i) -> void:
 
 func reset_position() -> void:
 	self.set_position(Vector2((range_x.y + range_x.x) * cell_size / 2, (range_y.y + range_y.x) * cell_size / 2))
+
+
+func get_area() -> int:
+	return (range_x.y - range_x.x) * (range_y.y - range_y.x)
