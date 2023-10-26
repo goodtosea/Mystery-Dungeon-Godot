@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://room.gd" id="1_2sc67"]
 [ext_resource type="Texture2D" uid="uid://ignrjfbpeqpy" path="res://icon.svg" id="2_32vme"]
 
-[node name="Room" type="Area2D"]
+[node name="Room" type="Node2D"]
 position = Vector2(12, 12)
 script = ExtResource("1_2sc67")
 
