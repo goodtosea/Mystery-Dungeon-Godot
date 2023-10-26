@@ -1,13 +1,13 @@
 [gd_scene load_steps=4 format=3 uid="uid://bdrsot5xn3g3g"]
 
-[ext_resource type="Script" path="res://Player.gd" id="1_00h0v"]
+[ext_resource type="Script" path="res://player.gd" id="1_njn7r"]
 [ext_resource type="Texture2D" uid="uid://ignrjfbpeqpy" path="res://icon.svg" id="2_4plqm"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_uvjol"]
 size = Vector2(24, 24)
 
 [node name="Player" type="Area2D"]
-script = ExtResource("1_00h0v")
+script = ExtResource("1_njn7r")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(0.188, 0.188)
