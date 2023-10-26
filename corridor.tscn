@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5sr5u14ga6qs"]
+
+[ext_resource type="Script" path="res://corridor.gd" id="1_cod4x"]
+
+[node name="Corridor" type="Node2D"]
+script = ExtResource("1_cod4x")

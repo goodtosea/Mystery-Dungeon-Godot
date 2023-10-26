@@ -494,6 +494,13 @@ sources/0 = SubResource("TileSetAtlasSource_tgy73")
 
 [node name="Floor" type="Node2D"]
 script = ExtResource("1_7dcq3")
+border_width = null
+dead_ends = null
+room_density = null
+floor_use_percent = null
+room_merge_percent = null
+M = null
+N = null
 
 [node name="Layout" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_q0vu7")

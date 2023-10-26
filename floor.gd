@@ -3,8 +3,9 @@ extends Node2D
 class_name Floor
 
 var room_list_2D := []
+var corridor_list := []
 
-var room = preload("res://room.tscn")
+#var room = preload("res://room.tscn")
 
 # TODO: figure out how to keep rooms from generating in the border (smaller size and draw walls on the outside?)
 @export var border_width := 2
@@ -136,7 +137,7 @@ func create_rooms() -> void:
 			
 			# TODO: There's probably a better way to do this with signals
 			
-			var current_room = room.instantiate()
+			var current_room = Room.instantiate()
 			current_room.initialize_variables(Vector2i(offset_x, offset_x + room_size_x), Vector2i(offset_y, offset_y + room_size_y))
 			room_list_2D[i][j] = current_room
 			add_child(current_room)
@@ -257,6 +258,11 @@ func draw_corridor(room: Room, neighbor: Room, side_to_draw_corridor: int):
 			var current_room_x = randi_range(current_room.range_x.x, current_room.range_x.y - 1) 						# -1 since width of the path will be 1
 			var room_to_connect_to_x = randi_range(room_to_connect_to.range_x.x, room_to_connect_to.range_x.y - 1) 		# -1 since width of the path will be 1
 			var corridor_connection_y = randi_range(room_to_connect_to.range_y.y + 1, current_room.range_y.x - 2) 		# +1 and -1 so it doesn't include the walls
+			
+			var corridor = Corridor.instantiate()
+			corridor.initialize_variables(Vector2i(current_room_x, ), Vector2i(), , )
+			corridor_list.append(corridor)
+			add_child(corridor)
 
 			draw_area_floor(Vector2i(current_room_x, current_room_x + 1), Vector2i(corridor_connection_y, current_room.range_y.x)) 																# current_room to the midpoint
 			draw_area_floor(Vector2i(room_to_connect_to_x, room_to_connect_to_x + 1), Vector2i(room_to_connect_to.range_y.y, corridor_connection_y)) 											# room_to_connect to to the midpoint
