@@ -1,6 +1,6 @@
 extends Area2D
 
-class_name Floor;
+class_name Floor
 
 var room_list_2D := []
 
