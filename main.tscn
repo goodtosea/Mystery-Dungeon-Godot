@@ -11,5 +11,4 @@ script = ExtResource("2_ap8lg")
 [node name="Dungeon" type="Node" parent="."]
 
 [node name="Floor" parent="Dungeon" instance=ExtResource("1_0alpk")]
-dead_ends = 6
-N = 2
+room_density = 3

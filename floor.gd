@@ -14,6 +14,7 @@ var room = preload("res://room.tscn")
 
 @export var room_density := 2
 
+@export var floor_use_percent := 100
 @export var room_merge_percent := 5
 
 @export var M := 2
@@ -121,8 +122,8 @@ func create_rooms() -> void:
 	for i in N:
 		for j in M:
 			# Sector logic
-			var range_x := Vector2i(i * (width / N), (i + 1) * (width / N)) 
-			var range_y := Vector2i(j * (height / M), (j + 1) * (height / M))
+			var range_x := Vector2i(i * (width / N) + 1, (i + 1) * (width / N) - 1) 
+			var range_y := Vector2i(j * (height / M) + 1, (j + 1) * (height / M) - 1)
 			
 			var sector_size_x = range_x.y - range_x.x
 			var sector_size_y = range_y.y - range_y.x
